@@ -16,10 +16,14 @@ public class PlayerController : MonoBehaviour
 
     public Transform Bounds;
 
+    GameObject cube;
+
+    public GameObject[] pieceOfCube;
+
 
     private void Start()
     {
-        
+        cube = transform.GetChild(0).gameObject;
         rb = GetComponent<Rigidbody>();
     }
 
@@ -51,6 +55,20 @@ public class PlayerController : MonoBehaviour
             else if (touch.phase == TouchPhase.Stationary) //parmaðýmý bastým ama hareket ettirmiyorum bu durumda stationary true döner.
             {
                 rb.velocity = Vector3.zero;
+            }
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if(collision.gameObject.tag == "Spike")
+        {
+            cube.SetActive(false);
+
+            for (int i = 0; i<pieceOfCube.Length;i++)
+            {
+                pieceOfCube[i].GetComponent<Collider>().enabled = true;
+                pieceOfCube[i].GetComponent<Rigidbody>().isKinematic = false;
             }
         }
     }
