@@ -4,6 +4,12 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    public TimeManager timeManager;
+
+    public bool isDead;
+
+    public CameraShake cameraShake;
+
     private Touch touch;
 
     public int moveSpeed;
@@ -20,21 +26,37 @@ public class PlayerController : MonoBehaviour
 
     public GameObject[] pieceOfCube;
 
+    public GameObject Player;
+
+    public int ChildrenCounter;
+
+    
 
     private void Start()
     {
+        isDead = false;
         cube = transform.GetChild(0).gameObject;
         rb = GetComponent<Rigidbody>();
+        //Debug.Log(this.gameObject.GetComponentsInChildren<GameObject>().Length);
+        ChildrenCounter = this.gameObject.GetComponentsInChildren<Transform>().Length;
+        setChildObjects();
     }
 
     private void Update()
     {
+
+        if (isDead)
+        {
+            forwardSpeed = 0;
+        }        
+        
         //ekrana dokunduðunda player , bounds , camera sabit ve ileri yönlü ayný hýza sahip olacak
         if (StatusChecker.touched)
         {
             transform.position += new Vector3(0, 0, forwardSpeed * Time.deltaTime);
             Camera.position += new Vector3(0, 0, forwardSpeed * Time.deltaTime);
             Bounds.position += new Vector3(0, 0, forwardSpeed * Time.deltaTime);
+            
         }
         
         if (Input.touchCount > 0)
@@ -59,13 +81,23 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+
+    public void setChildObjects()
+    {
+        for(int i =0; i < ChildrenCounter-1; i++)
+        {
+            pieceOfCube[i] = Player.transform.GetChild(i).gameObject ;
+        }
+    }
     private void OnCollisionEnter(Collision collision)
     {
         if(collision.gameObject.tag == "Spike")
         {
+            timeManager.slowMotionEffectCall();
+            cameraShake.cameraShakeEffectCall();
             cube.SetActive(false);
 
-            for (int i = 0; i<pieceOfCube.Length;i++)
+            for (int i = 1; i<pieceOfCube.Length;i++)
             {
                 pieceOfCube[i].GetComponent<Collider>().enabled = true;
                 pieceOfCube[i].GetComponent<Rigidbody>().isKinematic = false;
